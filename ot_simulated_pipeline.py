@@ -30,7 +30,7 @@ plot_density_contour(u0_doublegauss, lons_sat, lats_sat,
 # lets apply the OT pipeline to equalise the densities
 Nx, Ny = u0_sat.shape   # 200 x 200
 Nx_ot, Ny_ot = 64, 64
-sinkhorn_reg = 0.05
+sinkhorn_reg = 0.005
 # %%
 # Build cost matrix once (shared for both densities)
 # 64×64 instead of 200×200: exact OT (ot.emd) is O(n³) and Sinkhorn on 40k×40k is still prohibitive; 
@@ -71,4 +71,8 @@ displacement_jacobian_doublegauss = compute_jacobian(dX_doublegauss, dY_doublega
 det_J_doublegauss = displacement_jacobian(dX_doublegauss, dY_doublegauss)
 #plot_field(displacement_jacobian_doublegauss, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Jacobian (doublegauss)")
 plot_field(det_J_doublegauss, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Determinant jacobian (doublegauss)")
+# %%
+# looking at the values of the jacobian determinants, we expect no negative values to validate that the warp is fold-free
+print(f"sat:   min={det_J_sat.min():.4f}, max={det_J_sat.max():.4f}, mean={det_J_sat.mean():.4f}, folds={(det_J_sat<=0).sum()}")
+print(f"gauss: min={det_J_doublegauss.min():.4f}, max={det_J_doublegauss.max():.4f}, mean={det_J_doublegauss.mean():.4f}, folds={(det_J_doublegauss<=0).sum()}")
 # %%
