@@ -1,6 +1,6 @@
 # densityflow
 
-Simulated pipelines for **density equalisation** via two methods: the Gastner–Newman (GN) diffusion algorithm and discrete Optimal Transport (OT) with Sinkhorn regularisation. Developed as part of PhD research on observation density redistribution for satellite data (Meteosat FOV).
+Simulated pipelines for **density equalisation** via two methods: the Gastner–Newman (GN) diffusion algorithm and discrete Optimal Transport (OT) with Sinkhorn regularisation. Developed as part of research on observation density redistribution for (Meteosat-10) satellite data.
 
 ## Problem
 
@@ -8,10 +8,11 @@ Given a non-uniform 2D observation density (e.g. a circular satellite field-of-v
 
 ## Methods
 
-### Gastner–Newman (`gn.py`)
-Solves the heat equation on the density field using DCT/DST spectral methods. Particle positions are advected by the velocity field `v = -∇u / u` with an adaptive midpoint integrator until the density flattens. Returns the final uniform density, displacement field, and velocity field.
+### Gastner–Newman
+Solves the heat equation on the density field using DCT/DST spectral methods. Particle positions are advected by the velocity field `v = -∇u / u` with an adaptive midpoint integrator until the density flattens. Returns the final uniform density, displacement field, and velocity field.  
+`gn.py` provides a python implementation of the heat equation solver (*diff_integrate.c*) from the `CartogramR` (R-package), see [CartogramR Github repository](https://github.com/ESO-Rennes/cartogramR).
 
-### Optimal Transport (`ot_simulated_pipeline.py`)
+### Optimal Transport
 Solves a regularised OT problem (Sinkhorn) on a coarsened `64×64` grid, then bilinearly upsamples the displacement to the full `200×200` resolution. The output density is analytically `mean(u0)` everywhere (mass-preserving by construction).
 
 ## Preprocessing
@@ -48,5 +49,9 @@ print(f"min={det_J.min():.4f}, max={det_J.max():.4f}, folds={(det_J<=0).sum()}")
 ## Dependencies
 
 ```
-scipy numpy matplotlib mpl-tools pot  # pot = Python Optimal Transport
+scipy 
+numpy 
+matplotlib 
+mpl-tools 
+pot  # pot = Python Optimal Transport
 ```
