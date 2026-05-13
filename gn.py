@@ -3,9 +3,32 @@ from scipy.fftpack import dct, idct, dst, idst
 
 def solve_heat_eq(initial_density, Nx, Ny, eps=1e-10,
                         min_t=1e3, max_t=1e12, max_iter=10000, verbose=True):
-    """
-    GN algorithm using DCT/DST with norm='ortho' and Lx=Nx, Ly=Ny baked in.
-    compute_velocity mirrors apply_heat_eq_adaptive_dct_dst with Lx=Nx, Ly=Ny, alpha=1.
+    """       
+    Adaptive time stepping version matching the C code's diff_integrate
+    Using DCT and DST instead of FFT.
+
+    Parameters
+    ----------
+    initial_density : np.ndarray (Nx, Ny)
+        Input density field (must be positive everywhere; apply blur + floor first).
+    Nx, Ny : int
+        Grid dimensions (number of cells in x/lon and y/lat direction).
+    alpha : float
+        Diffusion coefficient scaling the heat decay rate. Higher values
+        diffuse faster per unit time (rarely needs tuning; default 1.0).
+    eps : float
+        Small floor added to density in the velocity computation v = -∇u/u
+        to avoid division by zero in near-zero regions.
+    min_t : float
+        Minimum integration time before convergence is checked. The solver
+        runs at least until t >= min_t regardless of max_change.
+    max_t : float
+        Hard upper limit on integration time. The solver stops at t >= max_t
+        even if convergence has not been reached.
+    max_iter : int
+        Maximum number of outer time steps before the loop is force-stopped.
+    verbose : bool
+        Print iteration progress (t, delta_t, max_change) every 10 steps.
     """
     u0 = initial_density
 

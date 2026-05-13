@@ -9,6 +9,7 @@ import ot
 u0_sat, lons_sat, lats_sat = initial_meteosat_density()
 print(f"u0_sat.min: {u0_sat.min()}")
 print(f"u0_sat.max: {u0_sat.max()}")
+print(f"u0_sat.mean: {u0_sat.mean()}")
 plot_density_contour(u0_sat.T, lons_sat, lats_sat,
                                fontsize=12,
                                font_color='black',
@@ -20,7 +21,7 @@ u0_doublegauss, lons, lats = double_gaussian()
 u0_doublegauss = scale_density(u0_doublegauss, target_min=0.0, target_max=4.5)
 print(f"u0_doublegauss.min: {u0_doublegauss.min()}")
 print(f"u0_doublegauss.max: {u0_doublegauss.max()}")
-
+print(f"u0_doublegauss.mean: {u0_doublegauss.mean()}")
 plot_density_contour(u0_doublegauss, lons_sat, lats_sat,
                                fontsize=12,
                                font_color='black',
@@ -42,8 +43,10 @@ M_ot, grid_pts_ot, X_ot_grid, Y_ot_grid = _build_cost_matrix(Nx_ot, Ny_ot)
 # As it's the case with GN, OT won't move anything to zero-regions, 
 # therefore Shirley-Chiu mapping and flooring prepares the density to contain only non-zero bins/pixels
 shirley_sat   = shirley_map_density_to_square(u0_sat)
+print(f"Sat. density after shirley: {np.mean(shirley_sat)}")
 plot_density_contour(shirley_sat, lons, lats)
 shirley_gauss = shirley_map_density_to_square(u0_doublegauss)
+print(f"Doublegauss density after shirley: {np.mean(shirley_gauss)}")
 plot_density_contour(shirley_gauss, lons, lats)
 # %%
 # with the densities prepared, lets run the OT pipeline to equalise the densities

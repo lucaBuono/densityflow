@@ -135,6 +135,22 @@ def shirley_map_density_to_square(density):
 
     # Sample original density
     mapped = map_coordinates(density, [ix, iy], order=1, mode="constant", cval=0.0)
+
+    # Jacobian correction for mass conservation: the backward warp without
+    # correction inflates total mass because corners (previously zero) are filled
+    # with non-zero disk values. Multiplying by |det J| of the square→disk mapping
+    # restores the original total mass so mean(mapped) == mean(density).
+    dxd_du = np.gradient(xd, u, axis=0)
+    dxd_dv = np.gradient(xd, v, axis=1)
+    dyd_du = np.gradient(yd, u, axis=0)
+    dyd_dv = np.gradient(yd, v, axis=1)
+    jac = np.abs(dxd_du * dyd_dv - dxd_dv * dyd_du)
+    mapped *= jac
+
+    # normalise the density to physical mean: num_values / (Nx*Ny)
+    mapped *= density.mean() / mapped.mean()
+
+
     return mapped
 
 def density_from_displacement(u0, dX, dY):
@@ -303,6 +319,7 @@ def plot_density_contour(
     cmap: str = "Blues",
     line_color = 'black',
     font_color ='black',
+    title: str="",
     fontsize = 12,
     figsize: tuple = (7, 6.5),
     save_path: str | None = None,
@@ -328,7 +345,8 @@ def plot_density_contour(
     manual_locations = [_label_pos(lv) for lv in label_levels]
 
     fig, ax = plt.subplots(figsize=figsize)
-
+    if title != "":
+        fig.suptitle(title)
     cf = ax.contourf(lons, lats, Z,
                      levels=np.linspace(0, max_density, 256),
                      cmap=cmap, vmin=0, vmax=max_density)

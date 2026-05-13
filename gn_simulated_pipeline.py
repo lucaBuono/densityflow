@@ -6,6 +6,7 @@ from helpers import *
 u0_sat, lons_sat, lats_sat = initial_meteosat_density()
 print(f"u0_sat.min: {u0_sat.min()}")
 print(f"u0_sat.max: {u0_sat.max()}")
+print(f"Initial sat. density mean: {u0_sat.mean()}")
 fig, ax = plot_density_contour(u0_sat.T, lons_sat, lats_sat,
                                fontsize=12,
                                font_color='black',
@@ -17,6 +18,7 @@ u0_doublegauss, lons, lats = double_gaussian()
 u0_doublegauss = scale_density(u0_doublegauss, target_min=0.0, target_max=4.5)
 print(f"u0_doublegauss.min: {u0_doublegauss.min()}")
 print(f"u0_doublegauss.max: {u0_doublegauss.max()}")
+print(f"Initial doublegauss density mean: {u0_doublegauss.mean()}")
 
 fig, ax = plot_density_contour(u0_doublegauss, lons_sat, lats_sat,
                                fontsize=12,
@@ -29,22 +31,26 @@ fig, ax = plot_density_contour(u0_doublegauss, lons_sat, lats_sat,
 u0_sat_shirley = shirley_map_density_to_square(u0_sat)
 print(f"u0_sat_shirley.min: {u0_sat_shirley.min()}")
 print(f"u0_sat_shirley.max: {u0_sat_shirley.max()}")
+print(f"Sat. density mean after Shirley-Chiu mapping: {u0_sat_shirley.mean()}")
 plot_density_contour(u0_sat_shirley, lons, lats)
 
 u0_doublegauss_shirley = shirley_map_density_to_square(u0_doublegauss)
 print(f"u0_doublegauss_shirley.min: {u0_doublegauss_shirley.min()}")
 print(f"u0_doublegauss_shirley.max: {u0_doublegauss_shirley.max()}")
+print(f"Doublegauss density mean after Shirley-Chiu mapping: {u0_doublegauss_shirley.mean()}")
 plot_density_contour(u0_doublegauss_shirley, lons, lats)
 # %%
 u0_sat_shirley_blur = spectral_gaussian_blur(u0_sat_shirley, blur_sigma=3.0, floor_eps=1e-3)
 print(f"u0_sat_shirley_blur.min: {u0_sat_shirley_blur.min()}")
 print(f"u0_sat_shirley_blur.max: {u0_sat_shirley_blur.max()}")
+print(f"Sat. density mean after Shirley-Chiu mapping and spectral blur: {u0_sat_shirley_blur.mean()}")
 plot_density_contour(u0_sat_shirley_blur, lons, lats)
 
 
 u0_doublegauss_shirley_blur = spectral_gaussian_blur(u0_doublegauss_shirley, blur_sigma=3.0, floor_eps=1e-3)
 print(f"u0_doublegauss_shirley_blur.min: {u0_doublegauss_shirley_blur.min()}")
 print(f"u0_doublegauss_shirley_blur.max: {u0_doublegauss_shirley_blur.max()}")
+print(f"Doublegauss density mean after Shirley-Chiu mappingand spectral blur: {u0_doublegauss_shirley_blur.mean()}")
 plot_density_contour(u0_doublegauss_shirley_blur, lons, lats)
 
 # %%
@@ -53,22 +59,26 @@ plot_density_contour(u0_doublegauss_shirley_blur, lons, lats)
 Nx = u0_sat.shape[0]
 Ny = u0_sat.shape[1]
 
-sat_density_gn, dX_sat, dY_sat, vx_final_sat, vy_final_sat = solve_heat_eq(u0_sat_shirley_blur, Nx=Nx, Ny=Ny,
-                                                                            eps=1e-10,
-                                                                            min_t=1e3, max_t=1e12, 
-                                                                            max_iter=10000, 
-                                                                            verbose=True)
+u_sat, dX_sat, dY_sat, vx_final_sat, vy_final_sat = solve_heat_eq(u0_sat_shirley_blur, 
+                                                                  Nx=Nx, Ny=Ny,
+                                                                  eps=1e-6,
+                                                                  min_t=1e3, max_t=1e15,
+                                                                  max_iter=50000,
+                                                                  verbose=True)
+sat_density_gn = density_from_displacement(u0_sat_shirley_blur, dX_sat, dY_sat)
 #plot_density_contour(sat_density_gn, lons, lats)
-print(f"Equalised satellite density mean: {sat_density_gn.mean()}")
+print(f"GN-equalized satellite density mean: {u_sat.mean()}")
 
 
-doublegauss_density_gn, dX_doublegauss, dY_doublegauss, vx_final_doublegauss, vy_final_doublegauss = solve_heat_eq(u0_doublegauss_shirley_blur, Nx=Nx, Ny=Ny,
-                                                                                                                    eps=1e-10,
-                                                                                                                    min_t=1e3, max_t=1e12, 
-                                                                                                                    max_iter=10000, 
-                                                                                                                    verbose=True)
+u_doublegauss, dX_doublegauss, dY_doublegauss, vx_final_doublegauss, vy_final_doublegauss = solve_heat_eq(u0_doublegauss_shirley_blur, 
+                                                                                                          Nx=Nx, Ny=Ny,
+                                                                                                          eps=1e-6, 
+                                                                                                          min_t=1e3, max_t=1e15,
+                                                                                                          max_iter=50000, 
+                                                                                                          verbose=True)
+doublegauss_density_gn = density_from_displacement(u0_doublegauss_shirley_blur, dX_doublegauss, dY_doublegauss)
 #plot_density_contour(doublegauss_density_gn, lons, lats)
-print(f"Equalised doublegauss density mean: {doublegauss_density_gn.mean()}")
+print(f"GN-equalized doublegauss density mean: {u_doublegauss.mean()}")
 # %%
 # lets now visualize the displacements fields
 streamplot_displacements(lons, lats, dX_sat, dY_sat, title="Satellite density displacements")

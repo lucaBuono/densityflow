@@ -55,3 +55,6 @@ matplotlib
 mpl-tools 
 pot  # pot = Python Optimal Transport
 ```
+
+## Remarks
+As the Meteosat-10 dataset is (currently) not publicly available, this repository is limited to the simulated densities. Once/If the Meteosat-10 dataset is publicly available, we will add the code of the entire pipeline, including all examples and plots from our publication. 
