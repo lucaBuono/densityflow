@@ -10,7 +10,7 @@ Given a non-uniform 2D observation density (e.g. a circular satellite field-of-v
 
 ### Gastner–Newman
 Solves the heat equation on the density field using DCT/DST spectral methods. Particle positions are advected by the velocity field `v = -∇u / u` with an adaptive midpoint integrator until the density flattens. Returns the final uniform density, displacement field, and velocity field.  
-`gn.py` provides a python implementation of the heat equation solver (*diff_integrate.c*) from the `CartogramR` (R-package), see [CartogramR Github repository](https://github.com/ESO-Rennes/cartogramR).
+`gn_helpers.py` provides a python implementation of the heat equation solver (*diff_integrate.c*) from the `CartogramR` (R-package), see [CartogramR Github repository](https://github.com/ESO-Rennes/cartogramR).
 
 ### Optimal Transport
 Solves a regularized OT problem (Sinkhorn) on a coarsened `64×64` grid, then bilinearly upsamples the displacement to the full `200×200` resolution. The output density is analytically `mean(u0)` everywhere (mass-preserving by construction). We are using the Python Optimal Transport (POT) package, see [POT repository](https://github.com/PythonOT/POT).
@@ -21,6 +21,8 @@ Both pipelines require the source density to be strictly positive over the full 
 
 1. **Shirley–Chiu mapping** (`shirley_map_density_to_square`): remaps a circular FOV to a filled square, eliminating zero corners.
 2. **Spectral Gaussian blur** (`spectral_gaussian_blur`): floors near-zero values to `floor_eps` so no bin is exactly zero (GN pipeline only).
+
+Note, that we normalise the density after the Shirley-Chiu mapping back to the original mean density of the input as the Shirley-Chiu mapping may change the mean density value slightly.
 
 ## Repo structure
 
