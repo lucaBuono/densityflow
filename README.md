@@ -26,10 +26,13 @@ Both pipelines require the source density to be strictly positive over the full 
 
 | File | Purpose |
 |---|---|
-| `gn.py` | GN heat-equation solver |
-| `helpers.py` | Density generators, preprocessing, OT internals, Jacobian utilities, plotting |
+| `gn_helpers.py` | GN heat-equation solver |
+| `ot_helpers.py` | All methods involved in the OT-pipeline |
+| `helpers.py` | Density generators, preprocessing, Jacobian utilities, plotting |
 | `gn_simulated_pipeline.py` | End-to-end GN demo on two test densities |
 | `ot_simulated_pipeline.py` | End-to-end OT demo on two test densities |
+| `gn_simulated_pipeline.ipynb` | End-to-end GN demo (Jupyter Notebook) on two test densities |
+| `ot_simulated_pipeline.ipynb` | End-to-end OT demo (Jupyter Notebook) on two test densities |
 | `requirements.txt` | Python dependencies |
 
 ## Diagnostics
