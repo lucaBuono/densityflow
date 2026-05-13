@@ -1,5 +1,5 @@
 # %%
-from gn import solve_heat_eq
+from gn_helpers import solve_heat_eq
 from helpers import *
 # %%
 # initialize simulated densities
@@ -65,8 +65,6 @@ u_sat, dX_sat, dY_sat, vx_final_sat, vy_final_sat = solve_heat_eq(u0_sat_shirley
                                                                   min_t=1e3, max_t=1e15,
                                                                   max_iter=50000,
                                                                   verbose=True)
-sat_density_gn = density_from_displacement(u0_sat_shirley_blur, dX_sat, dY_sat)
-#plot_density_contour(sat_density_gn, lons, lats)
 print(f"GN-equalized satellite density mean: {u_sat.mean()}")
 
 
@@ -76,8 +74,6 @@ u_doublegauss, dX_doublegauss, dY_doublegauss, vx_final_doublegauss, vy_final_do
                                                                                                           min_t=1e3, max_t=1e15,
                                                                                                           max_iter=50000, 
                                                                                                           verbose=True)
-doublegauss_density_gn = density_from_displacement(u0_doublegauss_shirley_blur, dX_doublegauss, dY_doublegauss)
-#plot_density_contour(doublegauss_density_gn, lons, lats)
 print(f"GN-equalized doublegauss density mean: {u_doublegauss.mean()}")
 # %%
 # lets now visualize the displacements fields
@@ -87,11 +83,9 @@ streamplot_displacements(lons, lats, dX_doublegauss, dY_doublegauss, title="Doub
 # now lets look at the jacobian and the determinant jacobian of the displacements field to determine if folds were created
 displacement_jacobian_sat = compute_jacobian(dX_sat, dY_sat)
 det_J_sat = displacement_jacobian(dX_sat, dY_sat)
-#plot_field(displacement_jacobian_sat, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Jacobian (satellite)")
 plot_field(det_J_sat, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Determinant jacobian (satellite)")
 
 displacement_jacobian_doublegauss = compute_jacobian(dX_doublegauss, dY_doublegauss)
 det_J_doublegauss = displacement_jacobian(dX_doublegauss, dY_doublegauss)
-#plot_field(displacement_jacobian_doublegauss, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Jacobian (doublegauss)")
 plot_field(det_J_doublegauss, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Determinant jacobian (doublegauss)")
 # %%

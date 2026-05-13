@@ -1,15 +1,15 @@
 # %%
-from gn import solve_heat_eq
 from helpers import *
-from helpers import _build_cost_matrix
-import ot
+from ot_helpers import *
+from ot_helpers import _build_cost_matrix
+
 
 # %%
 # initialize simulated densities
 u0_sat, lons_sat, lats_sat = initial_meteosat_density()
 print(f"u0_sat.min: {u0_sat.min()}")
 print(f"u0_sat.max: {u0_sat.max()}")
-print(f"u0_sat.mean: {u0_sat.mean()}")
+print(f"Initial mean of satellite density: {u0_sat.mean()}")
 plot_density_contour(u0_sat.T, lons_sat, lats_sat,
                                fontsize=12,
                                font_color='black',
@@ -21,7 +21,7 @@ u0_doublegauss, lons, lats = double_gaussian()
 u0_doublegauss = scale_density(u0_doublegauss, target_min=0.0, target_max=4.5)
 print(f"u0_doublegauss.min: {u0_doublegauss.min()}")
 print(f"u0_doublegauss.max: {u0_doublegauss.max()}")
-print(f"u0_doublegauss.mean: {u0_doublegauss.mean()}")
+print(f"Initial mean of double Gauss density: {u0_doublegauss.mean()}")
 plot_density_contour(u0_doublegauss, lons_sat, lats_sat,
                                fontsize=12,
                                font_color='black',
@@ -44,10 +44,10 @@ M_ot, grid_pts_ot, X_ot_grid, Y_ot_grid = _build_cost_matrix(Nx_ot, Ny_ot)
 # therefore Shirley-Chiu mapping and flooring prepares the density to contain only non-zero bins/pixels
 shirley_sat   = shirley_map_density_to_square(u0_sat)
 print(f"Sat. density after shirley: {np.mean(shirley_sat)}")
-plot_density_contour(shirley_sat, lons, lats)
+plot_density_contour(shirley_sat, lons, lats, title="Sat. density after Shirley")
 shirley_gauss = shirley_map_density_to_square(u0_doublegauss)
 print(f"Doublegauss density after shirley: {np.mean(shirley_gauss)}")
-plot_density_contour(shirley_gauss, lons, lats)
+plot_density_contour(shirley_gauss, lons, lats, title="Double Gauss density after Shirley")
 # %%
 # with the densities prepared, lets run the OT pipeline to equalise the densities
 print("\nRunning OT on Meteosat density...")
@@ -60,6 +60,12 @@ dX_doublegauss, dY_doublegauss, ot_density_doublegauss = run_ot_pipeline(shirley
                                                         M_ot, grid_pts_ot, X_ot_grid, Y_ot_grid, reg=sinkhorn_reg)
 print(f"Doublegauss density mean after OT: {ot_density_doublegauss.mean()}")
 # no need to plot the densities, as they become a constant value (per definition of OT)
+# plot the resulting densities after applying the OT algorithm
+plot_density_contour(ot_density_sat, lons, lats, title="GN-equalized satellite density")
+plt.show()
+
+plot_density_contour(ot_density_doublegauss, lons, lats, title="GN-equalized double Gauss density")
+plt.show()
 # %%
 streamplot_displacements(lons, lats, dX_sat, dY_sat, title="Satellite density displacements")
 streamplot_displacements(lons, lats, dX_doublegauss, dY_doublegauss, title="Doublegauss density displacements")
@@ -67,12 +73,10 @@ streamplot_displacements(lons, lats, dX_doublegauss, dY_doublegauss, title="Doub
 # now lets look at the jacobian and the determinant jacobian of the displacements field to determine if folds were created
 displacement_jacobian_sat = compute_jacobian(dX_sat, dY_sat)
 det_J_sat = displacement_jacobian(dX_sat, dY_sat)
-#plot_field(displacement_jacobian_sat, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Jacobian (satellite)")
 plot_field(det_J_sat, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Determinant jacobian (satellite)")
 
 displacement_jacobian_doublegauss = compute_jacobian(dX_doublegauss, dY_doublegauss)
 det_J_doublegauss = displacement_jacobian(dX_doublegauss, dY_doublegauss)
-#plot_field(displacement_jacobian_doublegauss, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Jacobian (doublegauss)")
 plot_field(det_J_doublegauss, cmap='RdBu_r', colorbar=True, lons=lons, lats=lats, title="Determinant jacobian (doublegauss)")
 # %%
 # looking at the values of the jacobian determinants, we expect no negative values to validate that the warp is fold-free
