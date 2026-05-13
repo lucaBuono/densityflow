@@ -1,6 +1,6 @@
 # DensityFlow
 
-Simulated pipelines for **density equalisation** via two methods: the Gastner–Newman (GN) diffusion algorithm and discrete Optimal Transport (OT) with Sinkhorn regularisation. Developed as part of research on observation density redistribution for (Meteosat-10) satellite data.
+Simulated pipelines for **density equalization** via two methods: the Gastner–Newman (GN) diffusion algorithm and discrete Optimal Transport (OT) with Sinkhorn regularization. Developed as part of research on observation density redistribution for (Meteosat-10) satellite data.
 
 ## Problem
 
@@ -13,7 +13,7 @@ Solves the heat equation on the density field using DCT/DST spectral methods. Pa
 `gn.py` provides a python implementation of the heat equation solver (*diff_integrate.c*) from the `CartogramR` (R-package), see [CartogramR Github repository](https://github.com/ESO-Rennes/cartogramR).
 
 ### Optimal Transport
-Solves a regularised OT problem (Sinkhorn) on a coarsened `64×64` grid, then bilinearly upsamples the displacement to the full `200×200` resolution. The output density is analytically `mean(u0)` everywhere (mass-preserving by construction).
+Solves a regularized OT problem (Sinkhorn) on a coarsened `64×64` grid, then bilinearly upsamples the displacement to the full `200×200` resolution. The output density is analytically `mean(u0)` everywhere (mass-preserving by construction). We are using the Python Optimal Transport (POT) package, see [POT repository](https://github.com/PythonOT/POT).
 
 ## Preprocessing
 
