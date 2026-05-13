@@ -1,4 +1,4 @@
-# densityflow
+# DensityFlow
 
 Simulated pipelines for **density equalisation** via two methods: the Gastner–Newman (GN) diffusion algorithm and discrete Optimal Transport (OT) with Sinkhorn regularisation. Developed as part of research on observation density redistribution for (Meteosat-10) satellite data.
 
