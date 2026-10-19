@@ -318,7 +318,7 @@ def plot_density_contour(
 
     return fig, ax
 
-def streamplot_displacements(X, Y, dX, dY, title: str = None, cmap: str = "Blues", colorbar: bool = True):
+def streamplot_displacements(X, Y, dX, dY, title: str = None, cmap: str = "Blues", colorbar: bool = True, save_path=None):
     magnitude = np.sqrt(dX**2 + dY**2)
 
     x_range = X.max() - X.min()
@@ -351,6 +351,8 @@ def streamplot_displacements(X, Y, dX, dY, title: str = None, cmap: str = "Blues
         ax.set_title(title)
 
     plt.tight_layout()
+    if save_path:
+        fig.savefig(f"{save_path}.png", bbox_inches="tight", pad_inches=0.05, dpi=300, transparent=True)
     plt.show()
 
 
